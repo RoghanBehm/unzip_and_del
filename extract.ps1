@@ -3,9 +3,16 @@ param (
     [string]$destination
 )
 
+function Show-Usage {
+    Write-Host "Usage: .\extract.ps1 -path <source-directory> [-destination <output-directory>]"
+    Write-Host "Example 1: .\extract.ps1 -path 'C:\dog'"
+    Write-Host "Example 2: .\extract.ps1 -path 'C:\dog' -destination 'C:\output'"
+    exit 1
+}
+
 if (-not $path) {
-    Write-Host "No arguments provided"
-    exit
+    Write-Host "Error: No source path provided"
+    Show-Usage
 }
 
 if (-not $destination) {
@@ -13,9 +20,12 @@ if (-not $destination) {
 }
 
 if ($args.Count -gt 0) {
-    Write-Host "Too many arguments provided"
-    exit
+    Write-Host "Error: Too many arguments provided"
+    Show-Usage
 }
+
+Write-Host "Extracting ZIP files from: $path"
+Write-Host "Extracting to: $destination"
 
 $zipFiles = Get-ChildItem -Path $path -Filter "*.zip"
 
@@ -28,7 +38,7 @@ foreach ($zip in $zipFiles) {
     }
 
       while ((Get-ChildItem -Path $destination | Measure-Object).Count -lt ($zipFolder.Items().Count)) {
-        Start-Sleep -Milliseconds 500  # Wait in short intervals instead of a fixed 2 seconds
+        Start-Sleep -Milliseconds 500
     }
 
     Remove-Item $zip.FullName -Force
